@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Cart</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<h1>Your Shopping Cart</h1>
+<a href="/">Back to Products</a>
+
+<table>
+    <tr>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Update</th>
+        <th>Remove</th>
+    </tr>
+
+    {% for id, item in cart.items() %}
+    <tr>
+        <td>{{ item.title }}</td>
+        <td>${{ item.price }}</td>
+        <td>
+            <form action="/update/{{ id }}" method="POST">
+                <input type="number" name="quantity" value="{{ item.quantity }}" min="0">
+                <button type="submit">Update</button>
+            </form>
+        </td>
+        <td></td>
+        <td>
+            <a href="/remove/{{ id }}">Remove</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h2>Total: ${{ total }}</h2>
+
+</body>
+</html>
