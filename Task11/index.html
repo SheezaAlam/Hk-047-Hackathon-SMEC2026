@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudentGig - Connect, Collaborate, Complete</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="#6366f1"/>
+                    <path d="M8 12L16 8L24 12V20L16 24L8 20V12Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16 8V24" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M8 12L24 20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M24 12L8 20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span>StudentGig</span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="#home">Home</a>
+                <a href="#browse">Browse Gigs</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#about">About</a>
+            </div>
+            <div class="nav-actions" id="navActions">
+                <button class="btn btn-outline" onclick="showAuthModal('login')">Login</button>
+                <button class="btn btn-primary" onclick="showAuthModal('signup')">Sign Up</button>
+            </div>
+            <div class="nav-user" id="navUser" style="display: none;">
+                <button class="btn btn-primary" onclick="showPostGigModal()">Post a Gig</button>
+                <div class="user-menu">
+                    <button class="user-avatar" onclick="toggleUserMenu()">
+                        <span id="userInitial">U</span>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#" onclick="showDashboard()">Dashboard</a>
+                        <a href="#" onclick="showMyGigs()">My Gigs</a>
+                        <a href="#" onclick="showMyBids()">My Bids</a>
+                        <a href="#" onclick="showPortfolio()">Portfolio</a>
+                        <a href="#" onclick="showProfile()">Profile</a>
+                        <a href="#" onclick="logout()">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Connect with Student Talent for Quick, Affordable Help</h1>
+                <p class="hero-subtitle">A platform where students showcase skills and peers find flexible, short-term work opportunities</p>
+                <div class="hero-actions">
+                    <button class="btn btn-large btn-primary" onclick="showAuthModal('signup')">Get Started</button>
+                    <button class="btn btn-large btn-outline" onclick="document.getElementById('browse').scrollIntoView({behavior: 'smooth'})">Browse Gigs</button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-number" id="activeGigs">156</div>
+                        <div class="stat-label">Active Gigs</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" id="totalStudents">2,341</div>
+                        <div class="stat-label">Students</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" id="completedTasks">1,892</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Browse Gigs Section -->
+    <section class="gigs-section" id="browse">
+        <div class="container">
+            <div class="section-header">
+                <h2>Browse Available Gigs</h2>
+                <div class="filters">
+                    <select id="categoryFilter" onchange="filterGigs()">
+                        <option value="all">All Categories</option>
+                        <option value="tutoring">Tutoring</option>
+                        <option value="design">Design</option>
+                        <option value="coding">Coding</option>
+                        <option value="writing">Writing</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <select id="sortFilter" onchange="filterGigs()">
+                        <option value="recent">Most Recent</option>
+                        <option value="budget-high">Budget: High to Low</option>
+                        <option value="budget-low">Budget: Low to High</option>
+                        <option value="deadline">Deadline: Soon</option>
+                    </select>
+                    <input type="text" id="searchInput" placeholder="Search gigs..." oninput="filterGigs()">
+                </div>
+            </div>
+            <div class="gigs-grid" id="gigsGrid">
+                <!-- Gigs will be dynamically loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <h2>How It Works</h2>
+            <div class="steps-grid">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Create Account</h3>
+                    <p>Sign up and build your profile showcasing your skills and expertise</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Post or Browse</h3>
+                    <p>Post a gig you need help with or browse available opportunities</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Bid & Connect</h3>
+                    <p>Submit bids with your price and timeline, or accept proposals</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Complete & Grow</h3>
+                    <p>Finish the task and automatically build your portfolio</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">Login</button>
+                <button class="auth-tab" id="signupTab" onclick="switchAuthTab('signup')">Sign Up</button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
+                <h2>Welcome Back</h2>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Login</button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signupForm" class="auth-form" style="display: none;" onsubmit="handleSignup(event)">
+                <h2>Create Account</h2>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="signupName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="signupEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>University</label>
+                    <input type="text" id="signupUniversity" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signupPassword" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label>Bio</label>
+                    <textarea id="signupBio" rows="3" placeholder="Tell us about your skills..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Post Gig Modal -->
+    <div class="modal" id="postGigModal">
+        <div class="modal-content modal-large">
+            <button class="modal-close" onclick="closePostGigModal()">&times;</button>
+            <form id="postGigForm" onsubmit="handlePostGig(event)">
+                <h2>Post a New Gig</h2>
+                <div class="form-group">
+                    <label>Gig Title</label>
+                    <input type="text" id="gigTitle" required placeholder="e.g., Need help with Calculus homework">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="gigCategory" required>
+                        <option value="">Select category</option>
+                        <option value="tutoring">Tutoring</option>
+                        <option value="design">Design</option>
+                        <option value="coding">Coding</option>
+                        <option value="writing">Writing</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="gigDescription" rows="4" required placeholder="Describe what you need help with..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Budget ($)</label>
+                        <input type="number" id="gigBudget" required min="5" step="5">
+                    </div>
+                    <div class="form-group">
+                        <label>Deadline</label>
+                        <input type="date" id="gigDeadline" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Post Gig</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Gig Detail Modal -->
+    <div class="modal" id="gigDetailModal">
+        <div class="modal-content modal-large">
+            <button class="modal-close" onclick="closeGigDetailModal()">&times;</button>
+            <div id="gigDetailContent">
+                <!-- Gig details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Bid Modal -->
+    <div class="modal" id="bidModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeBidModal()">&times;</button>
+            <form id="bidForm" onsubmit="handleSubmitBid(event)">
+                <h2>Submit Your Bid</h2>
+                <div class="form-group">
+                    <label>Your Bid Amount ($)</label>
+                    <input type="number" id="bidAmount" required min="1" step="1">
+                </div>
+                <div class="form-group">
+                    <label>Completion Time (hours)</label>
+                    <input type="number" id="bidTime" required min="1" step="1">
+                </div>
+                <div class="form-group">
+                    <label>Proposal</label>
+                    <textarea id="bidProposal" rows="4" required placeholder="Explain why you're the best fit for this gig..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Submit Bid</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard" style="display: none;">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Dashboard</h1>
+                <button class="btn btn-outline" onclick="hideDashboard()">Back to Home</button>
+            </div>
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="myGigsCount">0</div>
+                        <div class="stat-label">My Gigs Posted</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💼</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="myBidsCount">0</div>
+                        <div class="stat-label">Bids Submitted</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="completedCount">0</div>
+                        <div class="stat-label">Completed Tasks</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="ratingValue">0.0</div>
+                        <div class="stat-label">Average Rating</div>
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard-content">
+                <div class="dashboard-section">
+                    <h2>Recent Activity</h2>
+                    <div id="recentActivity">
+                        <!-- Activity items will be loaded here -->
+                    </div>
+                </div>
+                <div class="dashboard-section">
+                    <h2>Your Portfolio</h2>
+                    <div id="portfolioPreview">
+                        <!-- Portfolio items will be loaded here -->
+                    </div>
+                    <button class="btn btn-outline" onclick="showPortfolio()">View Full Portfolio</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Portfolio Modal -->
+    <div class="modal" id="portfolioModal">
+        <div class="modal-content modal-large">
+            <button class="modal-close" onclick="closePortfolioModal()">&times;</button>
+            <div class="portfolio-header">
+                <h2>My Portfolio</h2>
+                <p>Automatically updated with completed tasks</p>
+            </div>
+            <div id="portfolioContent" class="portfolio-grid">
+                <!-- Portfolio items will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
