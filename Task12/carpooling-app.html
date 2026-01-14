@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniRide - University Carpooling Platform</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <path d="M16 4L4 10V18C4 24 16 28 16 28C16 28 28 24 28 18V10L16 4Z" fill="#4CAF50"/>
+                    <path d="M12 16L15 19L20 13" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span>UniRide</span>
+            </div>
+            <div class="nav-menu">
+                <button class="nav-btn active" data-view="home">Home</button>
+                <button class="nav-btn" data-view="search">Find Rides</button>
+                <button class="nav-btn" data-view="post">Post Ride</button>
+                <button class="nav-btn" data-view="history">My Rides</button>
+                <button class="nav-btn profile-btn" data-view="profile">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 2C11.1046 2 12 2.89543 12 4C12 5.10457 11.1046 6 10 6C8.89543 6 8 5.10457 8 4C8 2.89543 8.89543 2 10 2ZM10 12C13.866 12 17 13.7909 17 16V18H3V16C3 13.7909 6.13401 12 10 12Z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Home View -->
+        <div class="view active" id="home-view">
+            <div class="hero-section">
+                <h1>Share Your Ride, Save Money, Help the Planet</h1>
+                <p>Connect with fellow students for eco-friendly commuting</p>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-rides">0</div>
+                        <div class="stat-label">Total Rides Posted</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="active-users">0</div>
+                        <div class="stat-label">Active Riders</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="co2-saved">0 kg</div>
+                        <div class="stat-label">CO₂ Saved</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="cost-saved">$0</div>
+                        <div class="stat-label">Cost Savings</div>
+                    </div>
+                </div>
+                <div class="cta-buttons">
+                    <button class="btn btn-primary" onclick="switchView('search')">Find a Ride</button>
+                    <button class="btn btn-secondary" onclick="switchView('post')">Offer a Ride</button>
+                </div>
+            </div>
+
+            <!-- Recent Rides -->
+            <div class="section">
+                <h2>Recent Rides</h2>
+                <div id="recent-rides" class="rides-grid"></div>
+            </div>
+        </div>
+
+        <!-- Search Rides View -->
+        <div class="view" id="search-view">
+            <div class="page-header">
+                <h1>Find a Ride</h1>
+                <p>Search for available rides matching your route</p>
+            </div>
+
+            <div class="search-section">
+                <div class="search-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="search-from">From</label>
+                            <input type="text" id="search-from" placeholder="Enter pickup location" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="search-to">To</label>
+                            <input type="text" id="search-to" placeholder="Enter destination" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="search-date">Date</label>
+                            <input type="date" id="search-date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="search-time">Time</label>
+                            <input type="time" id="search-time" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="search-seats">Seats Needed</label>
+                            <select id="search-seats" class="form-control">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-block" onclick="searchRides()">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"/>
+                        </svg>
+                        Search Rides
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Results -->
+            <div class="section">
+                <h2>Available Rides</h2>
+                <div id="search-results" class="rides-list"></div>
+            </div>
+        </div>
+
+        <!-- Post Ride View -->
+        <div class="view" id="post-view">
+            <div class="page-header">
+                <h1>Offer a Ride</h1>
+                <p>Share your commute and help reduce traffic congestion</p>
+            </div>
+
+            <div class="post-form-container">
+                <form id="post-ride-form" class="post-form">
+                    <div class="form-section">
+                        <h3>Route Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ride-from">Pickup Location *</label>
+                                <input type="text" id="ride-from" required placeholder="e.g., Main Campus Gate" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="ride-to">Destination *</label>
+                                <input type="text" id="ride-to" required placeholder="e.g., Downtown Station" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ride-route">Additional Stops (Optional)</label>
+                            <textarea id="ride-route" placeholder="Enter any intermediate stops" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Schedule</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ride-date">Date *</label>
+                                <input type="date" id="ride-date" required class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="ride-time">Departure Time *</label>
+                                <input type="time" id="ride-time" required class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="ride-recurring">
+                                Recurring ride (same time weekly)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Vehicle & Seats</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ride-seats">Available Seats *</label>
+                                <select id="ride-seats" required class="form-control">
+                                    <option value="">Select seats</option>
+                                    <option value="1">1 Seat</option>
+                                    <option value="2">2 Seats</option>
+                                    <option value="3">3 Seats</option>
+                                    <option value="4">4 Seats</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="ride-vehicle">Vehicle Type *</label>
+                                <select id="ride-vehicle" required class="form-control">
+                                    <option value="">Select vehicle</option>
+                                    <option value="sedan">Sedan</option>
+                                    <option value="suv">SUV</option>
+                                    <option value="hatchback">Hatchback</option>
+                                    <option value="van">Van</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Pricing</h3>
+                        <div class="form-group">
+                            <label for="ride-price">Price per Seat (Optional)</label>
+                            <input type="number" id="ride-price" placeholder="0.00" step="0.50" min="0" class="form-control">
+                            <small>Leave empty for free rides</small>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Additional Information</h3>
+                        <div class="form-group">
+                            <label for="ride-notes">Notes (Optional)</label>
+                            <textarea id="ride-notes" placeholder="Any special instructions or preferences" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-large">Post Ride</button>
+                        <button type="reset" class="btn btn-secondary">Clear Form</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- My Rides / History View -->
+        <div class="view" id="history-view">
+            <div class="page-header">
+                <h1>My Rides</h1>
+                <p>View your ride history and manage bookings</p>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="posted">Rides I Posted</button>
+                <button class="tab-btn" data-tab="booked">Rides I Booked</button>
+            </div>
+
+            <div class="tab-content active" id="posted-tab">
+                <div id="posted-rides" class="rides-list"></div>
+            </div>
+
+            <div class="tab-content" id="booked-tab">
+                <div id="booked-rides" class="rides-list"></div>
+            </div>
+        </div>
+
+        <!-- Profile View -->
+        <div class="view" id="profile-view">
+            <div class="page-header">
+                <h1>My Profile</h1>
+                <p>Manage your account and preferences</p>
+            </div>
+
+            <div class="profile-container">
+                <div class="profile-section">
+                    <h3>Personal Information</h3>
+                    <div class="form-group">
+                        <label for="profile-name">Name</label>
+                        <input type="text" id="profile-name" class="form-control" placeholder="Your name">
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-email">Email</label>
+                        <input type="email" id="profile-email" class="form-control" placeholder="your.email@university.edu">
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-phone">Phone</label>
+                        <input type="tel" id="profile-phone" class="form-control" placeholder="+1 (555) 123-4567">
+                    </div>
+                    <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+                </div>
+
+                <div class="profile-stats">
+                    <h3>My Statistics</h3>
+                    <div class="stat-item">
+                        <span class="stat-label">Rides Posted:</span>
+                        <span class="stat-value" id="user-posted">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Rides Taken:</span>
+                        <span class="stat-value" id="user-booked">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">CO₂ Saved:</span>
+                        <span class="stat-value" id="user-co2">0 kg</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Money Saved:</span>
+                        <span class="stat-value" id="user-savings">$0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ride Detail Modal -->
+    <div id="ride-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="ride-details"></div>
+            <div id="ride-map" style="height: 300px; margin: 20px 0;"></div>
+            <div id="ride-actions"></div>
+        </div>
+    </div>
+
+    <!-- Success/Error Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
