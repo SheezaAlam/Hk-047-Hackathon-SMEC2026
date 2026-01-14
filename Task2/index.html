@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product Price Comparison</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>🛒 Product Price Comparison System</h1>
+
+    <form method="POST">
+        <input type="text" name="product" placeholder="Search product (e.g. phone)" required>
+        <button type="submit">Search</button>
+    </form>
+
+    {% if products %}
+    <h2>Available Prices</h2>
+
+    <table>
+        <tr>
+            <th>Product</th>
+            <th>Price ($)</th>
+            <th>Store</th>
+        </tr>
+
+        {% for p in products %}
+        <tr>
+            <td>{{ p.name }}</td>
+            <td>{{ p.price }}</td>
+            <td>{{ p.site }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="best">
+        <h2>🏆 Best Price Found</h2>
+        <p><strong>Product:</strong> {{ best_price.name }}</p>
+        <p><strong>Price:</strong> ${{ best_price.price }}</p>
+        <p><strong>Store:</strong> {{ best_price.site }}</p>
+    </div>
+    {% endif %}
+
+</div>
+
+</body>
+</html>
