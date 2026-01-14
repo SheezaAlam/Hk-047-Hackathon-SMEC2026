@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Pollution Checker</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 900px; margin: 30px auto; padding: 0 15px; }
+        h1 { text-align: center; color: #333; }
+        form { text-align: center; margin: 30px 0; }
+        input[type="text"] { padding: 12px; width: 350px; font-size: 16px; }
+        button { padding: 12px 24px; font-size: 16px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { background: #45a049; }
+        .error { color: #d32f2f; text-align: center; font-weight: bold; margin: 15px 0; }
+        .result { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .result h2 { margin-top: 0; color: #2c3e50; }
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background: #e0e0e0; }
+        .aqi-good    { background: #a8e063; padding: 4px 8px; border-radius: 4px; }
+        .aqi-fair    { background: #fff176; padding: 4px 8px; border-radius: 4px; }
+        .aqi-moderate{ background: #ffb74d; padding: 4px 8px; border-radius: 4px; }
+        .aqi-poor    { background: #e57373; padding: 4px 8px; border-radius: 4px; }
+        .aqi-vpoor   { background: #b71c1c; color: white; padding: 4px 8px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <h1>Air Quality & Pollution Checker</h1>
+
+    <form method="POST">
+        <input type="text" name="location" placeholder="e.g. Karachi, PK or Lahore, Pakistan" required autofocus>
+        <button type="submit">Check Now</button>
+    </form>
+
+    <p style="text-align:center; font-size:0.9em; color:#555;">
+        Tip: Use city + country code like <strong>Karachi, PK</strong> for best results.
+    </p>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    {% if result %}
+        <div class="result">
+            <h2>Results for: {{ result.location }}</h2>
+            <p><strong>Air Quality:</strong> 
+                <span class="aqi-{{ result.quality|lower|replace(' ', '') }}">
+                    {{ result.quality }} (Index: {{ result.aqi }})
+                </span>
+            </p>
+            <p><strong>Pollutants (μg/m³):</strong></p>
+            <ul>
+                <li>SO₂:   {{ result.concentrations.SO2 }}</li>
+                <li>NO₂:   {{ result.concentrations.NO2 }}</li>
+                <li>PM₁₀:  {{ result.concentrations.PM10 }}</li>
+                <li>PM₂.₅: {{ result.concentrations.PM2_5 }}</li>
+                <li>O₃:    {{ result.concentrations.O3 }}</li>
+                <li>CO:    {{ result.concentrations.CO }}</li>
+            </ul>
+        </div>
+    {% endif %}
+
+    <h2>Reference: Air Quality Categories</h2>
+    <table>
+        <tr>
+            <th>Quality</th>
+            <th>Index</th>
+            <th>SO₂</th>
+            <th>NO₂</th>
+            <th>PM₁₀</th>
+            <th>PM₂.₅</th>
+            <th>O₃</th>
+            <th>CO</th>
+        </tr>
+        {% for idx in range(1, 6) %}
+            <tr>
+                <td>{{ aqi_map[idx] }}</td>
+                <td>{{ idx }}</td>
+                <td>{{ pollutants.SO2[idx-1] }}</td>
+                <td>{{ pollutants.NO2[idx-1] }}</td>
+                <td>{{ pollutants.PM10[idx-1] }}</td>
+                <td>{{ pollutants.PM2_5[idx-1] }}</td>
+                <td>{{ pollutants.O3[idx-1] }}</td>
+                <td>{{ pollutants.CO[idx-1] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+</body>
+</html>
