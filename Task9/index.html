@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Resource Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo">
+                <i class="fas fa-university"></i>
+                <span>Campus Resources</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#" class="nav-link active" data-page="home">Home</a></li>
+                <li><a href="#" class="nav-link" data-page="resources">Resources</a></li>
+                <li><a href="#" class="nav-link" data-page="my-bookings">My Bookings</a></li>
+                <li><a href="#" class="nav-link" data-page="admin">Admin</a></li>
+            </ul>
+            <div class="user-menu">
+                <span id="userName">Guest</span>
+                <button class="btn btn-sm" id="loginBtn">Login</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Home Page -->
+        <section id="home-page" class="page active">
+            <div class="hero">
+                <div class="container">
+                    <h1>Campus Resource Management</h1>
+                    <p>Book labs, halls, and equipment efficiently with real-time availability</p>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary btn-lg" onclick="navigateTo('resources')">
+                            <i class="fas fa-search"></i> Browse Resources
+                        </button>
+                        <button class="btn btn-secondary btn-lg" onclick="navigateTo('my-bookings')">
+                            <i class="fas fa-calendar-check"></i> My Bookings
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-flask"></i>
+                        <h3 id="totalLabs">0</h3>
+                        <p>Labs Available</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-door-open"></i>
+                        <h3 id="totalHalls">0</h3>
+                        <p>Halls Available</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-laptop"></i>
+                        <h3 id="totalEquipment">0</h3>
+                        <p>Equipment Available</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-alt"></i>
+                        <h3 id="totalBookings">0</h3>
+                        <p>Active Bookings</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Resources Page -->
+        <section id="resources-page" class="page">
+            <div class="container">
+                <h2>Available Resources</h2>
+                
+                <!-- Search and Filter -->
+                <div class="search-filter-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search resources...">
+                    </div>
+                    <div class="filters">
+                        <select id="categoryFilter">
+                            <option value="">All Categories</option>
+                            <option value="lab">Labs</option>
+                            <option value="hall">Halls</option>
+                            <option value="equipment">Equipment</option>
+                        </select>
+                        <select id="capacityFilter">
+                            <option value="">Any Capacity</option>
+                            <option value="0-20">1-20 persons</option>
+                            <option value="21-50">21-50 persons</option>
+                            <option value="51-100">51-100 persons</option>
+                            <option value="100+">100+ persons</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Resource Catalog -->
+                <div id="resourceCatalog" class="resource-grid">
+                    <!-- Resources will be dynamically loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- My Bookings Page -->
+        <section id="my-bookings-page" class="page">
+            <div class="container">
+                <h2>My Bookings</h2>
+                <div class="booking-tabs">
+                    <button class="tab-btn active" data-status="all">All</button>
+                    <button class="tab-btn" data-status="pending">Pending</button>
+                    <button class="tab-btn" data-status="approved">Approved</button>
+                    <button class="tab-btn" data-status="declined">Declined</button>
+                </div>
+                <div id="myBookingsList" class="bookings-list">
+                    <!-- Bookings will be dynamically loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Page -->
+        <section id="admin-page" class="page">
+            <div class="container">
+                <div class="admin-header">
+                    <h2>Admin Dashboard</h2>
+                    <button class="btn btn-primary" onclick="showAddResourceModal()">
+                        <i class="fas fa-plus"></i> Add Resource
+                    </button>
+                </div>
+
+                <div class="admin-tabs">
+                    <button class="admin-tab-btn active" data-tab="bookings">Booking Requests</button>
+                    <button class="admin-tab-btn" data-tab="resources">Manage Resources</button>
+                </div>
+
+                <!-- Booking Requests Tab -->
+                <div id="admin-bookings-tab" class="admin-tab-content active">
+                    <div id="adminBookingsList" class="bookings-list">
+                        <!-- Admin bookings will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Manage Resources Tab -->
+                <div id="admin-resources-tab" class="admin-tab-content">
+                    <div id="adminResourcesList" class="admin-resources-grid">
+                        <!-- Admin resources will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Book Resource</h3>
+                <span class="close" onclick="closeModal('bookingModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="resourceDetails"></div>
+                <form id="bookingForm">
+                    <input type="hidden" id="bookingResourceId">
+                    
+                    <div class="form-group">
+                        <label for="bookingDate">Date</label>
+                        <input type="date" id="bookingDate" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bookingStartTime">Start Time</label>
+                            <input type="time" id="bookingStartTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookingEndTime">End Time</label>
+                            <input type="time" id="bookingEndTime" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bookingPurpose">Purpose</label>
+                        <textarea id="bookingPurpose" rows="3" required placeholder="Describe the purpose of booking..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bookingContact">Contact Number</label>
+                        <input type="tel" id="bookingContact" required placeholder="+92 300 1234567">
+                    </div>
+
+                    <div id="availabilityStatus" class="availability-status"></div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('bookingModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i> Submit Booking
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Resource Modal -->
+    <div id="resourceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="resourceModalTitle">Add Resource</h3>
+                <span class="close" onclick="closeModal('resourceModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="resourceForm">
+                    <input type="hidden" id="resourceId">
+                    
+                    <div class="form-group">
+                        <label for="resourceName">Resource Name</label>
+                        <input type="text" id="resourceName" required placeholder="e.g., Computer Lab A">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resourceCategory">Category</label>
+                        <select id="resourceCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="lab">Lab</option>
+                            <option value="hall">Hall</option>
+                            <option value="equipment">Equipment</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resourceCapacity">Capacity</label>
+                        <input type="number" id="resourceCapacity" required min="1" placeholder="Number of persons">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resourceLocation">Location</label>
+                        <input type="text" id="resourceLocation" required placeholder="Building / Floor / Room">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resourceDescription">Description</label>
+                        <textarea id="resourceDescription" rows="3" placeholder="Additional details about the resource..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resourceFacilities">Facilities</label>
+                        <input type="text" id="resourceFacilities" placeholder="Projector, Whiteboard, AC, etc.">
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('resourceModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Resource
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3>Login</h3>
+                <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required placeholder="user@campus.edu">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" required placeholder="••••••••">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="loginAsAdmin">
+                            Login as Admin
+                        </label>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </button>
+                    </div>
+                </form>
+                <p class="form-note">Demo: user@campus.edu / admin@campus.edu (password: demo123)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
