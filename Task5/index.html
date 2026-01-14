@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f0f0f">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+    <title>QR Friend Connect</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f0f;
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+            color: #000;
+            padding: 20px 20px 30px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,255,136,0.3);
+        }
+
+        .app-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .app-header p {
+            opacity: 0.8;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .user-section {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #00ff88;
+            box-shadow: 0 0 20px rgba(0,255,136,0.2);
+        }
+
+        .user-section label {
+            display: block;
+            color: #00ff88;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .user-section input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            font-size: 18px;
+            background: #0f0f0f;
+            color: #00ff88;
+            font-weight: 700;
+        }
+
+        .user-section input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0,212,255,0.3);
+        }
+
+        .user-section input::placeholder {
+            color: #555;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .qr-section {
+            background: #1a1a1a;
+            padding: 30px 20px;
+            border-radius: 20px;
+            text-align: center;
+            border: 2px solid #333;
+            margin-bottom: 15px;
+        }
+
+        .qr-section h2 {
+            color: #00ff88;
+            font-size: 18px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #qrcode {
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0,255,136,0.4);
+            margin-bottom: 20px;
+        }
+
+        #reader {
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,212,255,0.4);
+            border: 2px solid #00d4ff;
+            margin-bottom: 15px;
+        }
+
+        .action-button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+            color: #000;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 20px rgba(0,255,136,0.4);
+            margin-bottom: 10px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .action-button:active {
+            transform: scale(0.98);
+        }
+
+        .action-button.secondary {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+        }
+
+        .action-button.danger {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+        }
+
+        .friends-container {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 20px;
+            border: 2px solid #333;
+        }
+
+        .friends-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .friends-header h2 {
+            color: #00ff88;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .friend-count {
+            background: #00ff88;
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .friend-card {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 2px solid #333;
+            transition: all 0.3s;
+        }
+
+        .friend-card:active {
+            transform: scale(0.98);
+            border-color: #00ff88;
+        }
+
+        .friend-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-size: 26px;
+            font-weight: 900;
+            box-shadow: 0 0 20px rgba(0,255,136,0.4);
+            flex-shrink: 0;
+        }
+
+        .friend-info {
+            flex: 1;
+        }
+
+        .friend-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 3px;
+        }
+
+        .friend-time {
+            font-size: 12px;
+            color: #888;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1a1a1a;
+            border-top: 2px solid #00ff88;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 10px 20px;
+            box-shadow: 0 -4px 20px rgba(0,255,136,0.2);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: 15px;
+            transition: all 0.3s;
+            flex: 1;
+            border: 2px solid transparent;
+        }
+
+        .nav-item:active {
+            transform: scale(0.95);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+            border-color: #00ff88;
+            box-shadow: 0 0 20px rgba(0,255,136,0.3);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        .nav-item.active .nav-icon {
+            color: #000;
+        }
+
+        .nav-item:not(.active) .nav-icon {
+            color: #666;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item.active .nav-label {
+            color: #000;
+        }
+
+        .nav-item:not(.active) .nav-label {
+            color: #666;
+        }
+
+        .success-toast {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+            color: #000;
+            padding: 18px;
+            border-radius: 15px;
+            text-align: center;
+            font-weight: 800;
+            z-index: 1000;
+            animation: slideDown 0.3s ease;
+            box-shadow: 0 5px 30px rgba(0,255,136,0.5);
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .info-text {
+            text-align: center;
+            color: #888;
+            margin: 15px 0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .scanner-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .scanner-controls button {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <h1>🤝 QR Friend Connect</h1>
+        <p>Connect instantly by scanning QR codes</p>
+    </div>
+
+    <div class="content">
+        <div class="user-section">
+            <label>Your Name</label>
+            <input type="text" id="username" placeholder="Enter your name">
+        </div>
+
+        <div id="my-qr-content" class="tab-content active">
+            <div class="qr-section">
+                <h2>📱 My QR Code</h2>
+                <div id="qrcode"></div>
+                <p class="info-text">Let friends scan this code to connect</p>
+            </div>
+            <button class="action-button" onclick="generateQR()">
+                ✨ Generate New Code
+            </button>
+            <button class="action-button secondary" onclick="shareQRCode()">
+                📤 Share QR Code
+            </button>
+            <button class="action-button danger" onclick="downloadQRCode()">
+                💾 Download QR Code
+            </button>
+        </div>
+
+        <div id="scan-content" class="tab-content">
+            <div class="qr-section">
+                <h2>📷 Scan Friend's Code</h2>
+                <div id="reader"></div>
+                <p class="info-text">Point camera at friend's QR code</p>
+            </div>
+            <div class="scanner-controls">
+                <button class="action-button" onclick="startScanner()">
+                    🎥 Start Camera
+                </button>
+                <button class="action-button danger" onclick="stopScanner()">
+                    ⏹️ Stop
+                </button>
+            </div>
+        </div>
+
+        <div id="friends-content" class="tab-content">
+            <div class="friends-container">
+                <div class="friends-header">
+                    <h2>👥 My Friends</h2>
+                    <div class="friend-count" id="friend-count">0</div>
+                </div>
+                <div id="friends-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="success-toast" style="display: none;"></div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('my-qr')">
+            <div class="nav-icon">📱</div>
+            <div class="nav-label">My Code</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('scan')">
+            <div class="nav-icon">📷</div>
+            <div class="nav-label">Scan</div>
+        </div>
+        <div class="nav-item" onclick="switchTab('friends')">
+            <div class="nav-icon">👥</div>
+            <div class="nav-label">Friends</div>
+        </div>
+    </div>
+
+    <script>
+        let html5QrCode;
+        let currentUser = '';
+        let friends = [];
+
+        function loadData() {
+            const saved = sessionStorage.getItem('qrFriendData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                currentUser = data.currentUser || '';
+                friends = data.friends || [];
+                document.getElementById('username').value = currentUser;
+            }
+        }
+
+        function saveData() {
+            const data = {
+                currentUser: currentUser,
+                friends: friends
+            };
+            sessionStorage.setItem('qrFriendData', JSON.stringify(data));
+        }
+
+        function generateQR() {
+            const username = document.getElementById('username').value.trim();
+            
+            if (!username) {
+                alert('Please enter your name first! ✨');
+                return;
+            }
+
+            currentUser = username;
+            saveData();
+
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+
+            const userId = 'user_' + Date.now();
+            const qrData = JSON.stringify({
+                name: username,
+                id: userId,
+                timestamp: new Date().toISOString()
+            });
+
+            new QRCode(qrContainer, {
+                text: qrData,
+                width: 220,
+                height: 220,
+                colorDark: '#00ff88',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            showToast('✅ QR Code generated!');
+        }
+
+        function startScanner() {
+            if (!currentUser) {
+                alert('Please enter your name first! ✨');
+                switchTab('my-qr');
+                return;
+            }
+
+            if (html5QrCode) {
+                return;
+            }
+
+            html5QrCode = new Html5Qrcode("reader");
+            
+            html5QrCode.start(
+                { facingMode: "environment" },
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 }
+                },
+                onScanSuccess
+            ).catch(err => {
+                console.error('Error starting scanner:', err);
+                alert('📷 Camera access denied or not available');
+            });
+        }
+
+        function stopScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode = null;
+                });
+            }
+        }
+
+        function onScanSuccess(decodedText) {
+            try {
+                const friendData = JSON.parse(decodedText);
+                
+                const exists = friends.some(f => f.id === friendData.id);
+                
+                if (!exists && friendData.name !== currentUser) {
+                    friends.push({
+                        name: friendData.name,
+                        id: friendData.id,
+                        connectedAt: new Date().toISOString()
+                    });
+                    
+                    saveData();
+                    stopScanner();
+                    
+                    showToast(`✅ Connected with ${friendData.name}!`);
+                    
+                    setTimeout(() => {
+                        switchTab('friends');
+                    }, 1500);
+                } else if (friendData.name === currentUser) {
+                    showToast('❌ Cannot add yourself!');
+                } else {
+                    showToast('⚠️ Already friends!');
+                }
+            } catch (e) {
+                console.error('Invalid QR code');
+            }
+        }
+
+        function displayFriends() {
+            const friendsList = document.getElementById('friends-list');
+            const friendCount = document.getElementById('friend-count');
+            
+            friendCount.textContent = friends.length;
+            
+            if (friends.length === 0) {
+                friendsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">😊</div>
+                        <div class="empty-state-text">No friends yet<br>Scan a QR code to connect!</div>
+                    </div>
+                `;
+                return;
+            }
+
+            friendsList.innerHTML = friends.map(friend => {
+                const date = new Date(friend.connectedAt);
+                const timeStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                return `
+                    <div class="friend-card">
+                        <div class="friend-avatar">${friend.name.charAt(0).toUpperCase()}</div>
+                        <div class="friend-info">
+                            <div class="friend-name">${friend.name}</div>
+                            <div class="friend-time">Connected: ${timeStr}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.closest('.nav-item').classList.add('active');
+            document.getElementById(tabName + '-content').classList.add('active');
+
+            if (tabName === 'friends') {
+                displayFriends();
+            }
+
+            if (tabName !== 'scan') {
+                stopScanner();
+            }
+        }
+
+        async function shareQRCode() {
+            const username = document.getElementById('username').value.trim();
+            
+            if (!username) {
+                alert('Please enter your name and generate a QR code first! ✨');
+                return;
+            }
+
+            const qrCanvas = document.querySelector('#qrcode canvas');
+            
+            if (!qrCanvas) {
+                alert('Please generate your QR code first! ✨');
+                return;
+            }
+
+            try {
+                qrCanvas.toBlob(async (blob) => {
+                    const file = new File([blob], `${username}-qr-code.png`, { type: 'image/png' });
+                    
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try {
+                            await navigator.share({
+                                title: 'My QR Friend Code',
+                                text: `Scan my QR code to connect with me! - ${username}`,
+                                files: [file]
+                            });
+                            showToast('📤 Shared successfully!');
+                        } catch (err) {
+                            if (err.name !== 'AbortError') {
+                                downloadQRCode();
+                            }
+                        }
+                    } else {
+                        alert('Share not supported. Downloading instead! 💾');
+                        downloadQRCode();
+                    }
+                });
+            } catch (err) {
+                console.error('Error sharing:', err);
+                alert('Could not share. Try downloading! 💾');
+            }
+        }
+
+        function downloadQRCode() {
+            const username = document.getElementById('username').value.trim();
+            
+            if (!username) {
+                alert('Please enter your name and generate a QR code first! ✨');
+                return;
+            }
+
+            const qrCanvas = document.querySelector('#qrcode canvas');
+            
+            if (!qrCanvas) {
+                alert('Please generate your QR code first! ✨');
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.download = `${username}-qr-code.png`;
+            link.href = qrCanvas.toDataURL('image/png');
+            link.click();
+            
+            showToast('💾 QR Code downloaded!');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('success-toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        document.getElementById('username').addEventListener('input', function(e) {
+            currentUser = e.target.value.trim();
+            saveData();
+        });
+
+        loadData();
+        if (currentUser) {
+            generateQR();
+        }
+        displayFriends();
+    </script>
+</body>
+</html>
